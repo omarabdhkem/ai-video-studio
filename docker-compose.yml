@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  # Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: aivideo-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/aivideostudio
+      - REDIS_URL=redis://redis:6379/0
+      - APP_ENV=production
+      - DEBUG=False
+      - OUTPUT_PATH=/app/output
+      - TEMP_PATH=/app/temp
+    volumes:
+      - ./backend:/app
+      - backend_output:/app/output
+      - backend_temp:/app/temp
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+    networks:
+      - aivideo-network
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: aivideo-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://backend:8000
+    depends_on:
+      - backend
+    restart: unless-stopped
+    networks:
+      - aivideo-network
+
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: aivideo-db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=aivideostudio
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - aivideo-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: aivideo-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - aivideo-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  backend_output:
+  backend_temp:
+
+networks:
+  aivideo-network:
+    driver: bridge
