@@ -8,6 +8,9 @@ import asyncio
 class TTSService:
     """Service for text-to-speech using Edge-TTS"""
     
+    # Constants
+    AVERAGE_WORDS_PER_MINUTE = 150  # Average speaking rate for duration estimation
+    
     def __init__(self):
         """Initialize TTS service"""
         self.output_path = settings.OUTPUT_PATH
@@ -75,9 +78,9 @@ class TTSService:
             # Save audio file
             await communicate.save(output_file)
             
-            # Calculate duration (approximate - 150 words per minute average)
+            # Calculate duration (approximate)
             words = len(text.split())
-            duration = (words / 150.0) * 60.0
+            duration = (words / self.AVERAGE_WORDS_PER_MINUTE) * 60.0
             
             return output_file, duration
             

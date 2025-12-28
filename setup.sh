@@ -38,9 +38,8 @@ if [ ! -f "backend/.env" ]; then
     
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         read -p "Enter your Groq API key: " groq_key
-        # Escape special characters in the API key for sed
-        escaped_key=$(printf '%s\n' "$groq_key" | sed -e 's/[\/&]/\\&/g')
-        sed -i "s/your_groq_api_key_here/$escaped_key/" backend/.env
+        # Use printf and awk for safer key replacement to avoid sed injection
+        awk -v key="$groq_key" '{sub(/your_groq_api_key_here/, key)}1' backend/.env > backend/.env.tmp && mv backend/.env.tmp backend/.env
         echo "✅ Groq API key added to backend/.env"
     else
         echo "⚠️  Don't forget to add your Groq API key to backend/.env before running!"

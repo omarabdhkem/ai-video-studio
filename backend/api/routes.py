@@ -30,6 +30,8 @@ logger = logging.getLogger(__name__)
 router = APIRouter(prefix=settings.API_V1_PREFIX)
 
 # In-memory storage for projects (replace with database in production)
+# TODO: Replace with SQLAlchemy models and PostgreSQL persistence
+# This is temporary for MVP - data will be lost on container restart
 projects_db: Dict[str, Dict[str, Any]] = {}
 
 

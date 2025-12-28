@@ -17,6 +17,9 @@ logger = logging.getLogger(__name__)
 class VideoAgent:
     """Agent for assembling videos from scenes"""
     
+    # Constants
+    MAX_CHARS_PER_LINE = 40  # Maximum characters per line for subtitles
+    
     def __init__(self):
         """Initialize video agent"""
         self.output_path = settings.OUTPUT_PATH
@@ -208,7 +211,7 @@ class VideoAgent:
             width, height = resolution
             
             # Split text into lines if too long
-            max_chars_per_line = 40
+            max_chars_per_line = self.MAX_CHARS_PER_LINE
             words = text.split()
             lines = []
             current_line = []
